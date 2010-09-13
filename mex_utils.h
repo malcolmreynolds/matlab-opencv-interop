@@ -10,6 +10,10 @@ void normalise_array(const mxArray* src, mxArray* dest);
 void normalise_array_inplace(mxArray* array, double val);
 unsigned char is_vector(const mxArray* input);
 
+//pointer stuff
+mxArray *pack_pointer(void *);
+void *unpack_pointer(const mxArray *);
+
 //inline utils
 inline double max(double d1, double d2) {
     return (d1 > d2) ? d1 : d2;
@@ -122,7 +126,16 @@ inline double max(double d1, double d2) {
     do {                                                                \
         if (!mxIsInt32(array)) {                                        \
             char msgbuf[ERR_MSG_SIZE];                                  \
-            sprintf(msgbuf,"%s:%d argument must be of type Uint32",     \
+            sprintf(msgbuf,"%s:%d argument must be of type Sint32",     \
+                    __FILE__,__LINE__);                                 \
+            mexErrMsgTxt(msgbuf);                                       \
+        } } while(0)
+
+#define ASSERT_IS_SINT64(array)                                         \
+    do {                                                                \
+        if (!mxIsInt64(array)) {                                        \
+            char msgbuf[ERR_MSG_SIZE];                                  \
+            sprintf(msgbuf,"%s:%d argument must be of type Sint64",     \
                     __FILE__,__LINE__);                                 \
             mexErrMsgTxt(msgbuf);                                       \
         } } while(0)
@@ -145,6 +158,18 @@ inline double max(double d1, double d2) {
                     __FILE__,__LINE__);                                 \
             mexErrMsgTxt(msgbuf);                                       \
         } } while(0)
+
+#define ASSERT_IS_STRUCT(array)                 \
+    do {                                        \
+        if (!mxIsStruct(array)) {               \
+            char msgbuf[ERR_MSG_SIZE];                 \
+            sprintf(msgbuf,"%s:%d argument must be a struct.",  \
+                    __FILE__, __LINE__);                        \
+            mexErrMsgTxt(msgbuf);                               \
+        } } while(0)
+
+
+
 
 //Check that two arrays have the exact same dimensionality.
 #define ASSERT_SAME_SIZE(array1,array2)					\
@@ -225,9 +250,11 @@ inline double max(double d1, double d2) {
     } while (0)
 
 //Get an unsigned int from an mxArray. Most useful when the mxArray represents a scalar.
+#define SCALAR_GET_SINGLE(array) *((float *)mxGetPr(array))
 #define SCALAR_GET_DOUBLE(array) *((double *)mxGetPr(array))
 #define SCALAR_GET_UINT32(array) *((unsigned int *)mxGetPr(array))
 #define SCALAR_GET_SINT32(array) *((signed int *)mxGetPr(array))
+#define SCALAR_GET_SINT64(array) *((signed long *)mxGetPr(array))
 
 
 

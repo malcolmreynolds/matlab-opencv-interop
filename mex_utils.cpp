@@ -1,5 +1,5 @@
 #include "mex.h"
-#include "mex_im_utils.h"
+#include "mex_utils.h"
 
 /**
  Get the number of elements in an mxArray
@@ -70,6 +70,7 @@ void normalise_array_inplace(mxArray* array, double val) {
   }
 }
 
+//determines whether the input represents a vector
 unsigned char is_vector(const mxArray* input) {
     switch (mxGetNumberOfDimensions(input)) {
     case 1:
@@ -88,5 +89,19 @@ unsigned char is_vector(const mxArray* input) {
     }
 }
         
+//allows us to return a pointer to matlab land so it can be used in a future function call.
+//pack into an int 64 so we can't possibly loose information. maybe.
+mxArray *pack_pointer(void * ptr) {
+    mxArray *retVal = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
+    long* l = (long *)mxGetPr(retVal);
+    *l = (long) ptr;
+    return retVal;
+}
 
-   
+//unpacks from an mxarray. if we don't have an int64 then assume something is very wrong. 
+void *unpack_pointer(const mxArray *packed_ptr) {
+    ASSERT_IS_SINT64(packed_ptr);
+    long l = SCALAR_GET_SINT64(packed_ptr);
+    return (void *) l;
+}
+    

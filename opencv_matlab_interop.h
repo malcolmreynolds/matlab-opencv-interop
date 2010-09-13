@@ -3,7 +3,7 @@
 
 #include "mex.h"
 #include "ml.h"
-#include "mex_im_utils.h"
+#include "mex_utils.h"
 
 const int DEFAULT_OPENCV_MTX_TYPE = CV_32F;
 
