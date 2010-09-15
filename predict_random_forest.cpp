@@ -4,7 +4,6 @@
 #define PRINT_INPUTS
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-    ASSERT_NUM_LHS_ARGS_EQUALS(1);
     ASSERT_NUM_RHS_ARGS_EQUALS(2);
 
     
