@@ -1,7 +1,7 @@
 #include "mex.h"
 #include "opencv_matlab_interop.h"
 
-#define PRINT_INPUTS 
+//#define PRINT_INPUTS 
 
 CvRTParams* parse_struct_to_forest_config(const mxArray *);
 void print_forest_params(const CvRTParams* params);

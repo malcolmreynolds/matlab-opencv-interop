@@ -7,8 +7,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     ASSERT_NUM_LHS_ARGS_EQUALS(1);
     ASSERT_NUM_RHS_ARGS_EQUALS(2);
 
+    
     //retrieve the pointer to the random forest
-    CvRTrees *forest = (CvRTrees *)unpack_pointer(prhs[0]);
+    const mxArray *forestPtr = prhs[0];
+    ASSERT_IS_POINTER(forestPtr);
+    CvRTrees *forest = (CvRTrees *)unpack_pointer(forestPtr);
 
     //get the data which we need to predict on into opencv format
     CvMat* dataMtx = matlab_matrix_to_opencv_matrix(prhs[1]);

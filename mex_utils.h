@@ -249,6 +249,28 @@ inline double max(double d1, double d2) {
         }                                                               \
     } while (0)
 
+//make sure this is whatever type we define our pointers to be packed into
+#define IS_POINTER(x) mxIsInt64(x)
+
+#define ASSERT_IS_POINTER(array)                                        \
+    do {                                                                \
+        if (!IS_POINTER(array)) {                                       \
+            char msgbuf[ERR_MSG_SIZE];                                  \
+            sprintf(msgbuf,"%s:%d expected a pointer!",__FILE__,__LINE__); \
+            mexErrMsgTxt(msgbuf);                                       \
+        }                                                               \
+    } while(0)
+
+#define ASSERT_IS_STRING(array)                                         \
+    do {                                                                \
+        if (!mxIsChar(array)) {                                         \
+            char msgbuf[ERR_MSG_SIZE];                                  \
+            sprintf(msgbuf, "%s:%d expected a string!",__FILE__,__LINE__); \
+            mexErrMsgTxt(msgbuf);                                       \
+        }                                                               \
+    } while(0)
+
+
 //Get an unsigned int from an mxArray. Most useful when the mxArray represents a scalar.
 #define SCALAR_GET_SINGLE(array) *((float *)mxGetPr(array))
 #define SCALAR_GET_DOUBLE(array) *((double *)mxGetPr(array))
