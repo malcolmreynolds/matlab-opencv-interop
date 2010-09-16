@@ -5,6 +5,7 @@
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     ASSERT_NUM_RHS_ARGS_EQUALS(2);
+    
 
     
     //retrieve the pointer to the random forest
@@ -22,12 +23,24 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     mxArray* output = mxCreateDoubleMatrix(numSamples, 1, mxREAL);
     double *outputData = (double *)mxGetPr(output);
 
-    //
-    for (unsigned int i=0; i<numSamples; i++) {
-        cvGetRow(dataMtx, &sample, i);
-        outputData[i] = (double)forest->predict(&sample);
+    if (nrhs > 1) { //are we doing variances?
+        mexPrintf("Calculating variances.\n");
+        mxArray* variances = mxCreateDoubleMatrix(numSamples, 1, mxREAL);
+        double *varianceData = (double *)mxGetPr(output);
+        
+        for (unsigned int i=0; i<numSamples; i++) {
+            cvGetRow(dataMtx, &sample, i);
+            outputData[i] = (double)forest->predict_variance(&sample, NULL, varianceData+i);
+        }
+        plhs[1] = variances;
     }
-
+    else {
+        for (unsigned int i=0; i<numSamples; i++) {
+            cvGetRow(dataMtx, &sample, i);
+            outputData[i] = (double)forest->predict(&sample, NULL);
+        }
+    }
+    
     plhs[0] = output;
     cvReleaseMat(&dataMtx);
 }
