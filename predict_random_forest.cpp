@@ -3,10 +3,13 @@
 
 #define PRINT_INPUTS
 
+#define SECOND
+
+const unsigned int FIRST_LHS_ARG = 1;
+const unsigned int SECOND_LHS_ARG = 2;
+
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     ASSERT_NUM_RHS_ARGS_EQUALS(2);
-    
-
     
     //retrieve the pointer to the random forest
     const mxArray *forestPtr = prhs[0];
@@ -23,15 +26,17 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     mxArray* output = mxCreateDoubleMatrix(numSamples, 1, mxREAL);
     double *outputData = (double *)mxGetPr(output);
 
-    if (nrhs > 1) { //are we doing variances?
-        mexPrintf("Calculating variances.\n");
+    if (nlhs > 1) { //are we doing variances?
         mxArray* variances = mxCreateDoubleMatrix(numSamples, 1, mxREAL);
-        double *varianceData = (double *)mxGetPr(output);
+        double *varianceData = (double *)mxGetPr(variances);
+        float varianceTemp = 5.0; //opencv returns the variance as a float, so need this temp variable.
         
         for (unsigned int i=0; i<numSamples; i++) {
             cvGetRow(dataMtx, &sample, i);
-            outputData[i] = (double)forest->predict_variance(&sample, NULL, varianceData+i);
+            outputData[i] = (double)forest->predict_variance(&sample, NULL, &varianceTemp);
+            varianceData[i] = varianceTemp;
         }
+        //variances are second argument
         plhs[1] = variances;
     }
     else {

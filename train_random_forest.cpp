@@ -83,7 +83,7 @@ CvRTParams* parse_struct_to_forest_config(const mxArray *trainingOptions) {
     bool useSurrogates = false;
     int maxCategories = 10;
     float* priors = NULL;
-    bool calcVarImportance = false;
+    bool calcVarImportance = true;
     int numActiveVars = 0;
     int maxTreeCount = 50;
     float forestAccuracy = 0.1;
