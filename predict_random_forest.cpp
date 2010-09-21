@@ -8,6 +8,7 @@
 const unsigned int FIRST_LHS_ARG = 1;
 const unsigned int SECOND_LHS_ARG = 2;
 
+
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     ASSERT_NUM_RHS_ARGS_EQUALS(2);
     
