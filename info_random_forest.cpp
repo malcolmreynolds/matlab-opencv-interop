@@ -42,6 +42,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         mxSetField(output, 0, "active_var_mask", opencv_matrix_to_matlab_matrix(active_vars));
     }
     
+    //3. Number of trees
+    int num_trees = forest->get_tree_count();
+    mxSetField(output, 0, "num_trees", mxCreateDoubleScalar(num_trees));
+
+    //4. type
 
     plhs[0] = output;
 }
