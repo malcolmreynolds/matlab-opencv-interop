@@ -23,6 +23,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     else {
         mexPrintf("Using default parameters\n");
         rtParams = new CvRTParams();
+        rtParams->calc_var_importance = true; //we almost always want this.
     }
 
     mexPrintf("Parameters:\n");
@@ -221,5 +222,21 @@ void print_forest_params(const CvRTParams* params) {
     mexPrintf("num active variables: %d\n", params->nactive_vars);
     mexPrintf("max tree count: %d\n", params->term_crit.max_iter); //need to check if this is right!
     mexPrintf("forest accuracy: %f\n", params->term_crit.epsilon); //ditto
-    mexPrintf("term criteria type: %d\n", params->term_crit.type); //this doesn't provide much useful information...
+    switch(params->term_crit.type) {
+    case 0:
+        mexPrintf("term criteria type: none (?)\n");
+        break;
+    case CV_TERMCRIT_ITER:
+        mexPrintf("term criteria type: CV_TERMCRIT_ITER\n");
+        break;
+    case CV_TERMCRIT_EPS:
+        mexPrintf("term criteria type: CV_TERMCRIT_EPS\n");
+        break;
+    case (CV_TERMCRIT_EPS | CV_TERMCRIT_ITER):
+        mexPrintf("term criteria type: CV_TERMCRIT_ITER | CV_TERMCRIT_EPS\n");
+        break;
+    default:
+        mexPrintf("term criteria type: unknown!!\n");
+        break;
+    }
 }
