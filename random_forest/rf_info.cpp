@@ -1,5 +1,4 @@
-#include "mex.h"
-#include "opencv_matlab_interop.h"
+#include "../opencv_matlab_interop.h"
 
 //add more as I think of them...
 const char *fieldNames[] = {

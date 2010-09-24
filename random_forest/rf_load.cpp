@@ -1,5 +1,4 @@
-#include "mex.h"
-#include "opencv_matlab_interop.h"
+#include "../opencv_matlab_interop.h"
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     ASSERT_NUM_RHS_ARGS_EQUALS(1); //just a filename

@@ -1,5 +1,4 @@
-#include "mex.h"
-#include "opencv_matlab_interop.h"
+#include "../opencv_matlab_interop.h"
 
 //#define PRINT_INPUTS 
 

@@ -1,13 +1,6 @@
-#include "mex.h"
-#include "opencv_matlab_interop.h"
+#include "../opencv_matlab_interop.h"
 
 #define PRINT_INPUTS
-
-#define SECOND
-
-const unsigned int FIRST_LHS_ARG = 1;
-const unsigned int SECOND_LHS_ARG = 2;
-
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     ASSERT_NUM_RHS_ARGS_EQUALS(2);
