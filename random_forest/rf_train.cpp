@@ -2,6 +2,37 @@
 
 //#define PRINT_INPUTS 
 
+//maximum depth of each tree
+const int DEFAULT_MAX_DEPTH = 25;
+
+//if there are fewer than this many samples in a node, don't bother splitting
+const int DEFAULT_MIN_SAMPLE_COUNT = 5;
+
+//one of the "stop splitting" criteria variables - still not sure about this?
+const float DEFAULT_REGRESSION_ACCURACY = 0.00001;
+
+//only useful if dealing with missing features
+const bool DEFAULT_USE_SURROGATES = false;
+
+//relates to the number of categorical types - preclustering will happen before this
+const int DEFAULT_MAX_CATEGORIES = 10;
+
+//priors on the probability of each class
+float* DEFAULT_PRIORS = NULL;
+
+//whether to calculate the importance of each variable
+const bool DEFAULT_CALC_VAR_IMPORTANCE = true;
+
+//size of the random subset of features to test at each node
+const int DEFAULT_NUM_ACTIVE_VARS = 10;
+
+//maximum number of trees
+const int DEFAULT_MAX_TREE_COUNT = 200;
+
+//This goes into the termination of the trainin procecure
+const float DEFAULT_FOREST_ACCURACY = 0.1;
+const int DEFAULT_TERM_CRITERIA_TYPE = CV_TERMCRIT_ITER + CV_TERMCRIT_EPS;
+
 CvRTParams* parse_struct_to_forest_config(const mxArray *);
 void print_forest_params(const CvRTParams* params);
 
@@ -21,8 +52,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     }
     else {
         mexPrintf("Using default parameters\n");
-        rtParams = new CvRTParams();
-        rtParams->calc_var_importance = true; //we almost always want this.
+        rtParams = parse_struct_to_forest_config(NULL);
     }
 
     mexPrintf("Parameters:\n");
@@ -72,22 +102,26 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
 //parse the matlab struct to get all the options for training
 CvRTParams* parse_struct_to_forest_config(const mxArray *trainingOptions) {
-    ASSERT_IS_STRUCT(trainingOptions);
-    int numFields = mxGetNumberOfFields(trainingOptions);
+    int numFields = 0;
+    if (trainingOptions == NULL) {
+        numFields = mxGetNumberOfFields(trainingOptions);
+    }
+
+    mexPrintf("%d training fields provided\n", numFields);
 
     //these should be the default values that we would get from instantiating
     //a CvRTParams object.
-    int maxDepth = 5;
-    int minSampleCount = 10;
-    float regressionAccuracy = 0.0;
-    bool useSurrogates = false;
-    int maxCategories = 10;
-    float* priors = NULL;
-    bool calcVarImportance = true;
-    int numActiveVars = 0;
-    int maxTreeCount = 50;
-    float forestAccuracy = 0.1;
-    int termCriteriaType = CV_TERMCRIT_ITER + CV_TERMCRIT_EPS;
+    int maxDepth = DEFAULT_MAX_DEPTH;
+    int minSampleCount = DEFAULT_MIN_SAMPLE_COUNT;
+    float regressionAccuracy = DEFAULT_REGRESSION_ACCURACY;
+    bool useSurrogates = DEFAULT_USE_SURROGATES;
+    int maxCategories = DEFAULT_MAX_CATEGORIES;
+    float* priors = DEFAULT_PRIORS;
+    bool calcVarImportance = DEFAULT_CALC_VAR_IMPORTANCE;
+    int numActiveVars = DEFAULT_NUM_ACTIVE_VARS;
+    int maxTreeCount = DEFAULT_MAX_TREE_COUNT;
+    float forestAccuracy = DEFAULT_FOREST_ACCURACY;
+    int termCriteriaType = DEFAULT_TERM_CRITERIA_TYPE;
 
     for (int i=0; i < numFields; i++) {
         const char *name = mxGetFieldNameByNumber(trainingOptions, i);
