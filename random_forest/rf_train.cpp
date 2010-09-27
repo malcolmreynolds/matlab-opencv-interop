@@ -29,7 +29,7 @@ const int DEFAULT_NUM_ACTIVE_VARS = 10;
 //maximum number of trees
 const int DEFAULT_MAX_TREE_COUNT = 200;
 
-//This goes into the termination of the trainin procecure
+//These go into the termination of the training procecure
 const float DEFAULT_FOREST_ACCURACY = 0.1;
 const int DEFAULT_TERM_CRITERIA_TYPE = CV_TERMCRIT_ITER + CV_TERMCRIT_EPS;
 
@@ -103,7 +103,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 //parse the matlab struct to get all the options for training
 CvRTParams* parse_struct_to_forest_config(const mxArray *trainingOptions) {
     int numFields = 0;
-    if (trainingOptions == NULL) {
+    if (trainingOptions != NULL) {
         numFields = mxGetNumberOfFields(trainingOptions);
     }
 
