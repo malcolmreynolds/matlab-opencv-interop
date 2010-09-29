@@ -6,3 +6,4 @@ mex rf_save.cpp `opencv-comp` ../mex_utils.o ../opencv_matlab_interop.o
 mex rf_load.cpp `opencv-comp` ../mex_utils.o ../opencv_matlab_interop.o
 mex rf_delete.cpp `opencv-comp` ../mex_utils.o ../opencv_matlab_interop.o
 mex rf_info.cpp `opencv-comp` ../mex_utils.o ../opencv_matlab_interop.o
+mex rf_oob.cpp `opencv-comp` ../mex_utils.o ../opencv_matlab_interop.o
