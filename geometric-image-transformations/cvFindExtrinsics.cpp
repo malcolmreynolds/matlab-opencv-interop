@@ -1,5 +1,7 @@
 #include "../opencv_matlab_interop.h"
 
+#include "calib3d/calib3d.hpp"
+
 #define DEBUG
 
 /* RHS arguments
@@ -12,7 +14,7 @@
   plhs[1]: translation vector
 */
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
-    ASSERT_NUM_RHS_ARGS_EQUAL(4);
+    ASSERT_NUM_RHS_ARGS_EQUALS(4);
     ASSERT_NUM_LHS_ARGS_EQUALS(2);
 
     const mxArray *objectPoints = prhs[0];
@@ -52,7 +54,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     CvMat* cvObjectPoints = matlab_array_to_opencv_array(objectPoints);
     CvMat* cvImagePoints = matlab_array_to_opencv_array(imagePoints);
     CvMat* cvCamMatrix = matlab_array_to_opencv_array(cameraMatrix);
-    CvMat* cvDistCoeffs = matlab_array_to_opencv_arra(distortionCoeffs);
+    CvMat* cvDistCoeffs = matlab_array_to_opencv_array(distortionCoeffs);
 
     //these will be filled up by the algorithm
     CvMat* cvRotVec = cvCreateMat(3, 1, CV_32F);
