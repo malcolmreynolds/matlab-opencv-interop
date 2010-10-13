@@ -168,6 +168,16 @@ inline double max(double d1, double d2) {
             mexErrMsgTxt(msgbuf);                               \
         } } while(0)
 
+#define ASSERT_IS_3_BY_3(array)                                         \
+    do {                                                                \
+        if ((mxGetNumberOfDimensions(array) != 2) ||                    \
+            (mxGetM(array) != 3) ||                                     \
+            (mxGetN(array) != 3)) {                                     \
+            char msgbuf[ERR_MSG_SIZE];                                  \
+            sprintf(msgbuf, "%s:%d argument should be a 3x3 matrix.",   \
+                    __FILE__, __LINE__);                                \
+            mexErrMsgTxt(msgbuf);                                       \
+        } } while(0)
 
 
 
