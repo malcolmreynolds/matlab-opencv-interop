@@ -51,10 +51,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 #endif
 
     //convert everything to opencv world
-    CvMat* cvObjectPoints = matlab_array_to_opencv_array(objectPoints);
-    CvMat* cvImagePoints = matlab_array_to_opencv_array(imagePoints);
-    CvMat* cvCamMatrix = matlab_array_to_opencv_array(cameraMatrix);
-    CvMat* cvDistCoeffs = matlab_array_to_opencv_array(distortionCoeffs);
+    CvMat* cvObjectPoints = matlab_matrix_to_opencv_matrix(objectPoints);
+    CvMat* cvImagePoints = matlab_matrix_to_opencv_matrix(imagePoints);
+    CvMat* cvCamMatrix = matlab_matrix_to_opencv_matrix(cameraMatrix);
+    CvMat* cvDistCoeffs = matlab_matrix_to_opencv_matrix(distortionCoeffs);
 
     //these will be filled up by the algorithm
     CvMat* cvRotVec = cvCreateMat(3, 1, CV_32F);
