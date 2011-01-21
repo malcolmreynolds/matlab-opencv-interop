@@ -21,6 +21,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     double *outputData = (double *)mxGetPr(output);
 
     if (nlhs > 1) { //are we doing variances?
+        mexPrintf("calculating variances\n");
         mxArray* variances = mxCreateDoubleMatrix(numSamples, 1, mxREAL);
         double *varianceData = (double *)mxGetPr(variances);
         float varianceTemp = 5.0; //opencv returns the variance as a float, so need this temp variable.

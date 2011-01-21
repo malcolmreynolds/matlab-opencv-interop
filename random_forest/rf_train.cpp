@@ -1,4 +1,5 @@
 #include "../opencv_matlab_interop.h"
+#include <time.h>
 
 //#define PRINT_INPUTS 
 
@@ -86,15 +87,17 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     cvSet(var_type, cvScalarAll(CV_VAR_ORDERED));
 
     //actually make the forest and do the training
+    time_t start_time, end_time;
     mexPrintf("training now...");
+    start_time = time(NULL);
     CvRTrees *forest = new CvRTrees();
     forest->train(dataCvMtx, CV_ROW_SAMPLE, targetCvMtx, NULL, NULL, var_type, NULL, *rtParams);
-    mexPrintf("training done.\n");
+    end_time = time(NULL);
+    mexPrintf("training done in %fs\n", difftime(end_time, start_time));
 
     //pack the pointer and return it to matlab
     plhs[0] = pack_pointer((void *)forest);
     
-
     cvReleaseMat(&var_type);
     cvReleaseMat(&dataCvMtx);
     cvReleaseMat(&targetCvMtx);
