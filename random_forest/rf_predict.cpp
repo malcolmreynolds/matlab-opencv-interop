@@ -1,6 +1,7 @@
 #include "../opencv_matlab_interop.h"
 
 #define PRINT_INPUTS
+#define VANILLA_OPENCV
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     ASSERT_NUM_RHS_ARGS_EQUALS(2);
@@ -21,6 +22,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     double *outputData = (double *)mxGetPr(output);
 
     if (nlhs > 1) { //are we doing variances?
+#ifdef VANILLA_OPENCV
+        mexWarnMsgTxt("Trying to calculate variances but rf_predict.cpp is compiled with support for unmodified opencv only!\nIf OpenCV has been patched to allow variance calculations, comment out \"#define VANILLA_OPENCV\" in rf_predict.cpp and recompile\n");
+        plhs[1] = mxCreateDoubleScalar(0);
+#else
         mexPrintf("calculating variances\n");
         mxArray* variances = mxCreateDoubleMatrix(numSamples, 1, mxREAL);
         double *varianceData = (double *)mxGetPr(variances);
@@ -33,6 +38,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         }
         //variances are second argument
         plhs[1] = variances;
+#endif
     }
     else {
         for (unsigned int i=0; i<numSamples; i++) {
