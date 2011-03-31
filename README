@@ -1,0 +1,47 @@
+OpenCV bindings for Matlab - Readme
+
+malcolm.reynolds@gmail.com
+----------------------
+
+This is a simple set of bindings for a *very* small subset of OpenCV functionality so
+that it can be called from Matlab. I wrote these bindings for just the bits of OpenCV I 
+needed for a specific project, which was mainly the Random Forest implementation. If you
+need bindings for lots of other parts of the system, it's probably time to switch to Python
+like I'm doing.
+
+Anyway, the included Makefile works on OS X (64 bit) and with suitable modifications to the
+configuration to the bits at the top I'm sure it can be made to work for any platform that 
+matlab runs on.
+
+Requirements:
+
+* Matlab: Works on 2010rb and 2009aSV. In principle any version that includes MEX support
+  should be fine.
+* OpenCV: Tested on OpenCV 2.x. This library seems to get reorganised fairly frequently
+  so some headers / includes might need changing at some point...
+* C++ compiler: tested with GCC, but whatever Matlab wraps with the 'mex' command should be fine.
+
+Matlab needs to be installed such that you can type "mex" to run it in a terminal. The actual
+file should be in your matlab installation in the bin/ directory.
+
+OpenCV's libraries and include files must be given to the makefile - I use a shell script to print
+out the locations of this (in -I/some/include/directory -L/some/library/directory -lfirstlibrary
+-lsecondlibrary format), which is the `opencv-comp` in the makefile. You can just manually enter
+them here too if you like, but if you ever do any other opencv compilation on the command line the
+shell script is handy.
+
+One you're compiled you should have a bunch of .mexw32 / .mewx64 / .mexmaci64 / whatever files
+sitting in the same directory as the source files. Point Matlab's PATH to them and you're good to
+go.
+
+
+Disclaimer
+--------------
+This was written for a single project, and it worked for me. No guarantees - I saw some particularly
+gnarly crashing bugs on Windows XP 32 bit when I ported it over, but I simply do not have the inclination
+to find out what's going on there. I was planning to expand this to cover more opencv functionality, but
+I am switching my workflow to Python/Scipy/Numpy for the future. However, this is here just in case anyone
+wants simple, high performance, reliable random forests in matlab.
+
+All complaints to malcolm.reynolds@gmail.com - if you use this for something useful, I would love to hear
+about it.
