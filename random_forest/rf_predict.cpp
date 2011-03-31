@@ -1,7 +1,7 @@
 #include "../opencv_matlab_interop.h"
 
 #define PRINT_INPUTS
-#define VANILLA_OPENCV
+//#define VANILLA_OPENCV
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     ASSERT_NUM_RHS_ARGS_EQUALS(2);

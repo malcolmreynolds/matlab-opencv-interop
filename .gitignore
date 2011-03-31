@@ -1,2 +1,5 @@
 *.o
 *.mexmaci
+*.mexmaci64
+*.forest
+
