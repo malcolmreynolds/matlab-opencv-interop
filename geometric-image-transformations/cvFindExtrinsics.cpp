@@ -33,7 +33,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         mexErrMsgTxt("object points should have first dimension of size 3");
     }
     else if (mxGetM(imagePoints) != 2) {
-        mexErrMsgTxt("image points should have first dimension of size 3");
+        mexErrMsgTxt("image points should have first dimension of size 2");
     }
     else if ((mxGetM(distortionCoeffs) != 1) ||
              (mxGetN(distortionCoeffs) != 5)) {

@@ -1,9 +1,0 @@
-mex -c ../mex_utils.cpp -outdir ..
-mex -c ../opencv_matlab_interop.cpp -outdir .. `opencv-comp`
-mex rf_train.cpp `opencv-comp` ../mex_utils.o ../opencv_matlab_interop.o
-mex rf_predict.cpp `opencv-comp` ../mex_utils.o ../opencv_matlab_interop.o
-mex rf_save.cpp `opencv-comp` ../mex_utils.o ../opencv_matlab_interop.o
-mex rf_load.cpp `opencv-comp` ../mex_utils.o ../opencv_matlab_interop.o
-mex rf_delete.cpp `opencv-comp` ../mex_utils.o ../opencv_matlab_interop.o
-mex rf_info.cpp `opencv-comp` ../mex_utils.o ../opencv_matlab_interop.o
-mex rf_oob.cpp `opencv-comp` ../mex_utils.o ../opencv_matlab_interop.o
