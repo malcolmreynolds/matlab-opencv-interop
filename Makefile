@@ -2,7 +2,7 @@
 #change this for your platform - this is for 64 bit os x
 MEX = mex
 MEX_SUFFIX = mexmaci64
-MEX_FLAGS = 
+MEX_FLAGS = #-Wall
 OBJ_SUFFIX = o
 DELETE_CMD = rm
 

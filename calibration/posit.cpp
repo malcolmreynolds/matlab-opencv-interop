@@ -31,14 +31,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 #endif
 
     //error checking
-    if (mxGetM(object_points) != 3) {
+    if (mxGetM(object_points_mx) != 3) {
         mexErrMsgTxt("object points should have first dimension size 3");
     }
-    else if (mxGetM(image_points) != 2) {
+    else if (mxGetM(image_points_mx) != 2) {
         mexErrMsgTxt("image points should have first dimension size 2");
     }
-    int num_points = mxGetN(object_points);
-    if (mxGetN(image_points) != num_points) {
+    int num_points = mxGetN(object_points_mx);
+    if (mxGetN(image_points_mx) != num_points) {
         mexErrMsgTxt("number of points in image_points and object_points do not match");
     }
 #ifdef DEBUG
@@ -59,7 +59,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 #endif
 
     //the first point in the object array has to be (0,0,0)
-    double *object_points_ptr = mxGetPr(object_points);
+    double *object_points_ptr = mxGetPr(object_points_mx);
     if (object_points_ptr[0] != 0.0 || 
         object_points_ptr[1] != 0.0 ||
         object_points_ptr[2] != 0.0) {
@@ -78,7 +78,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     CvPOSITObject *positObject = cvCreatePOSITObject( &model_points[0], num_points );
 
     //put the image points into a similar structure
-    double *image_points_ptr = mxGetPr(image_points);
+    double *image_points_ptr = mxGetPr(image_points_mx);
     std::vector<CvPoint2D32f> image_points;
     for (unsigned int i=0; i < num_points; i++) {
         image_points.push_back( cvPoint2D32f(image_points_ptr[0], image_points_ptr[1]));
@@ -88,12 +88,24 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     CvMatr32f rotation_matrix = new float[9];
     CvVect32f translation_vector = new float[3];
 
-    CvTermCriteria criteria = cvTermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 100, 1.0e-4f);
-    cvPOSIT(positObject, &image_points[0], focal_length, rotation_matrix, translation_vector);
+    CvTermCriteria criteria = cvTermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, num_iterations, 1.0e-4f);
+    cvPOSIT(positObject, &image_points[0], focal_length, 
+            criteria, rotation_matrix, translation_vector);
     
     mexPrintf("cvPOSIT returned successfully\n");
+
+    plhs[0] = mxCreateDoubleScalar(1);
+
+    //fill in the translation
+    mxArray *trans_mx = mxCreateDoubleMatrix(3, 1, mxREAL);
+    double* trans_ptr = mxGetPr(trans_mx);
+    trans_ptr[0] = translation_vector[0];
+    trans_ptr[1] = translation_vector[1];
+    trans_ptr[2] = translation_vector[2];
+    plhs[1] = trans_mx;
 
     cvReleasePOSITObject(&positObject);
     delete rotation_matrix;
     delete translation_vector;
         
+}
