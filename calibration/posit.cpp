@@ -94,10 +94,21 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     
     mexPrintf("cvPOSIT returned successfully\n");
 
-    plhs[0] = mxCreateDoubleScalar(1);
+    //fill in the rotation 
+    mxArray *rot_mx = mxCreateDoubleMatrix(3, 3, mxREAL);
+    double *rot_ptr = mxGetPr(rot_mx);
+    for (unsigned int r=0; r<3; r++) {
+        for (unsigned int c=0; c<3; c++) {
+            //this is a bit of a mad ting but it works, trust me - see posit_test.m
+            //matlab arrays are stored column-major order, and without this bit of
+            //tomfoolery the result is a transpose.
+            rot_ptr[c*3 + r] = rotation_matrix[3*r + c];
+        }
+    }
+    plhs[0] = rot_mx;
 
     //fill in the translation
-    mxArray *trans_mx = mxCreateDoubleMatrix(3, 1, mxREAL);
+    mxArray* trans_mx = mxCreateDoubleMatrix(3, 1, mxREAL);
     double* trans_ptr = mxGetPr(trans_mx);
     trans_ptr[0] = translation_vector[0];
     trans_ptr[1] = translation_vector[1];

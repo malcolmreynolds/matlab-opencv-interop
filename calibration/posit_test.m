@@ -24,13 +24,13 @@ focal_length_mtx = [intrinsics(1,1) * ones(1, num_points); ...
 image_points = focal_length_mtx .* model_points_transformed(1:2,:) ./ repmat(model_points_transformed(3,:), 2, 1);
 
 
-fprintf('calling POSIT with focal_x = %f, focal_y = %f, focal_length=%f\n', ...
-        focal_x, focal_y, focal_length);
+%fprintf('calling POSIT with focal_x = %f, focal_y = %f, focal_length=%f\n', ...
+%        focal_x, focal_y, focal_length);
 fprintf('extrinsics r = \n');
 fprintf('%f %f %f\n', r');
-fprintf('extrinsics t = %f %f %f\n', t);
+fprintf('extrinsics t = %f %f %f\n\n', t);
 
-[r t] = posit(model_points, image_points, focal_length, int32(500));
+[r t] = posit(model_points, image_points, focal_length, int32(20));
 
 fprintf('computed r =\n');
 fprintf('%f %f %f\n', r');
