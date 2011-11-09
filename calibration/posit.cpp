@@ -85,8 +85,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
         image_points_ptr += 2;
     }
     
-    CvMatr32f rotation_matrix = new float[9];
-    CvVect32f translation_vector = new float[3];
+    float* rotation_matrix = new float[9];
+    float* translation_vector = new float[3];
 
     CvTermCriteria criteria = cvTermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, num_iterations, 1.0e-4f);
     cvPOSIT(positObject, &image_points[0], focal_length, 
