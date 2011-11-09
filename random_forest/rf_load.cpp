@@ -12,7 +12,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     
     mexPrintf("Trying to load random forest from %s... ",filenameBuffer);
     
-    CvRTrees *forest = new CvRTrees;
+    CvRTrees *forest = new CvRTrees();
     forest->load(filenameBuffer);
 
     if (forest->get_tree_count() == 0) {
