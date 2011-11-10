@@ -1,4 +1,4 @@
-function [best_params stats] = rf_train_with_param_search(training_x, training_y, search_range)
+function [best_params stats] = rf_train_with_param_search(training_x, training_y, search_ranges)
 	% Given some x and y to train on, perform a parameter search to determine what some good parameters
 	% are for this data. Uses out-of-bag (oob) error currently, could be modified to do cross validation?
 	
@@ -18,7 +18,7 @@ function [best_params stats] = rf_train_with_param_search(training_x, training_y
 	for i=1:length(default_options),
 		name = default_options{i}{1};
 		if ~isfield(search_ranges, name),
-			setfield(search_ranges, name, default_options{i}{2});
+			search_ranges = setfield(search_ranges, name, default_options{i}{2});
 		end
 	end
 	
@@ -26,31 +26,35 @@ function [best_params stats] = rf_train_with_param_search(training_x, training_y
 	valid_num_vars_mask = search_ranges.num_active_vars_rng <= num_vars;
 	search_ranges.num_active_vars_rng = search_ranges.num_active_vars_rng(valid_num_vars_mask);
 	
-	% Prepare the output array
-	stats.oob_error = zeros(length(search_range.max_trees_rng), ...
-	                        length(search_range.max_depth_rng), ...
-	                        length(search_range.reg_accuracy_rng), ...
-	                        length(search_range.num_active_vars.rng));
-	stats.time = zeros(length(search_range.max_trees_rng), ...
-					   length(search_range.max_depth_rng), ...
-					   length(search_range.reg_accuracy_rng), ...
-					   length(search_range.num_active_vars.rng));
-	stats.num_trees = zeros(length(search_range.max_trees_rng), ...
-							length(search_range.max_depth_rng), ...
-							length(search_range.reg_accuracy_rng), ...
-							length(search_range.num_active_vars.rng));
+	% Prepare the output array stuff
+	stats.oob_error = zeros(length(search_ranges.max_trees_rng), ...
+	                        length(search_ranges.max_depth_rng), ...
+	                        length(search_ranges.regression_accuracy_rng), ...
+	                        length(search_ranges.num_active_vars_rng));
+	stats.time = zeros(length(search_ranges.max_trees_rng), ...
+					   length(search_ranges.max_depth_rng), ...
+					   length(search_ranges.regression_accuracy_rng), ...
+					   length(search_ranges.num_active_vars_rng));
+	stats.num_trees = zeros(length(search_ranges.max_trees_rng), ...
+							length(search_ranges.max_depth_rng), ...
+							length(search_ranges.regression_accuracy_rng), ...
+							length(search_ranges.num_active_vars_rng));
+	stats.search_ranges = search_ranges;
 	
 	fprintf('running exhaustive search...')
 	
+	min_oob_error = Inf;
+	best_params = -1;
+	
 	opts = rf_good_params()
-	for w=1:length(search_range.max_trees_rng),
-		opts.max_tree_count = int32(search_range.max_trees_rng(w));
-		for x=1:length(search_range.max_depth_rng), 
-			opts.max_depth = int32(search_range.max_depth_rng(x));
-			for y=1:length(search_range.regression_accuracy_rng),
-				opts.regression_accuracy = search_range.regression_accuracy_rng(y);
-				for z=1:length(search_range.num_active_vars_rng),
-					opts.num_active_vars = int32(search_range.num_active_vars_rng(z));
+	for w=1:length(search_ranges.max_trees_rng),
+		opts.max_tree_count = int32(search_ranges.max_trees_rng(w));
+		for x=1:length(search_ranges.max_depth_rng), 
+			opts.max_depth = int32(search_ranges.max_depth_rng(x));
+			for y=1:length(search_ranges.regression_accuracy_rng),
+				opts.regression_accuracy = search_ranges.regression_accuracy_rng(y);
+				for z=1:length(search_ranges.num_active_vars_rng),
+					opts.num_active_vars = int32(search_ranges.num_active_vars_rng(z));
 					
 					% Train the forest, record the stats, and delete
 					[forest stats.time(w,x,y,z)] = rf_train(training_x, training_y, opts);
@@ -58,12 +62,21 @@ function [best_params stats] = rf_train_with_param_search(training_x, training_y
 					stats.oob(w,x,y,z) = forest_info.oob_error;
 					stats.num_trees(w,x,y,z) = forest_info.num_trees;
 					rf_delete(forest);
+					
+					% If we have achieved the smallest oob error so far, then store these parameters and
+					% the value.
+					if forest_info.oob_error < min_oob_error,
+						best_params = opts;
+						min_oob_error = forest_info.oob_error;
+					end	
 				end
 			end
 			fprintf('dont max depth = %d\n', opts.max_depth);
 		end
 		fprintf('done max trees = %d\n', opts.max_tree_count);
 	end
+	
+end
 	
 					
 					
