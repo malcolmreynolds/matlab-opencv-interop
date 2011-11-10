@@ -5,6 +5,7 @@ const char *fieldNames[] = {
     "importance",
     "active_var_mask",
     "num_trees",
+	"oob_error",
     "type"
 };
 
@@ -42,10 +43,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     }
     
     //3. Number of trees
-    int num_trees = forest->get_tree_count();
-    mxSetField(output, 0, "num_trees", mxCreateDoubleScalar(num_trees));
+    mxSetField(output, 0, "num_trees", mxCreateDoubleScalar(forest->get_tree_count()));
 
-    //4. type
+	//4. Out of Bag Error
+	mxSetField(output, 0, "oob_error", mxCreateDoubleScalar(forest->get_oob_error()));
 
     plhs[0] = output;
 }
