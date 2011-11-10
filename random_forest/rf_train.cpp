@@ -39,7 +39,7 @@ void print_forest_params(const CvRTParams* params);
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     ASSERT_NUM_RHS_ARGS_GTE(2);
-    ASSERT_NUM_LHS_ARGS_LT(2);
+    ASSERT_NUM_LHS_ARGS_LT(3);
 
     const mxArray* dataMtx = prhs[0];
     const mxArray* targetValueVec = prhs[1];
@@ -87,16 +87,23 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     cvSet(var_type, cvScalarAll(CV_VAR_ORDERED));
 
     //actually make the forest and do the training
-    time_t start_time, end_time;
+    clock_t start_time, end_time;
     mexPrintf("training now...");
-    start_time = time(NULL);
+    start_time = clock();
     CvRTrees *forest = new CvRTrees();
     forest->train(dataCvMtx, CV_ROW_SAMPLE, targetCvMtx, NULL, NULL, var_type, NULL, *rtParams);
-    end_time = time(NULL);
-    mexPrintf("training done in %fs\n", difftime(end_time, start_time));
+    end_time = clock();
+	clock_t diff_time = end_time - start_time;
+	double seconds_passed = ((float)diff_time) / CLOCKS_PER_SEC;
+    mexPrintf("training done in %fs\n", seconds_passed);
 
     //pack the pointer and return it to matlab
     plhs[0] = pack_pointer((void *)forest);
+
+	// If the user supplied a second lhs argument, return them the time taken to train
+	if (nlhs > 1) {
+		plhs[1] = mxCreateDoubleScalar(seconds_passed);
+	}
     
     cvReleaseMat(&var_type);
     cvReleaseMat(&dataCvMtx);
