@@ -2,7 +2,8 @@
 #define __OPENCV_MATLAB_INTEROP_H
 
 #include "mex.h"
-#include "ml.h"
+#include "opencv2/core/core_c.h"
+#include "opencv2/ml/ml.hpp"
 #include "mex_utils.h"
 
 const int DEFAULT_OPENCV_MTX_TYPE = CV_32F;

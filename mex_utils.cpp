@@ -92,9 +92,10 @@ unsigned char is_vector(const mxArray* input) {
 //allows us to return a pointer to matlab land so it can be used in a future function call.
 //pack into an int 64 so we can't possibly loose information. maybe.
 mxArray *pack_pointer(void * ptr) {
-    mxArray *retVal = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
+  mxArray *retVal = mxCreateNumericMatrix(1, 1, mxINT64_CLASS, mxREAL);
     long* l = (long *)mxGetPr(retVal);
     *l = (long) ptr;
+    mexPrintf("packed pointer %x\n", ptr);
     return retVal;
 }
 
@@ -102,6 +103,7 @@ mxArray *pack_pointer(void * ptr) {
 void *unpack_pointer(const mxArray *packed_ptr) {
     ASSERT_IS_SINT64(packed_ptr);
     long l = SCALAR_GET_SINT64(packed_ptr);
+    mexPrintf("unpacked pointer %x\n", (void *) l);
     return (void *) l;
 }
     
