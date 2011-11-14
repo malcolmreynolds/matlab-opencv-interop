@@ -1,5 +1,7 @@
 *.o
 *.mexmaci
 *.mexmaci64
+*.mexw64
+*.obj
 *.forest
 

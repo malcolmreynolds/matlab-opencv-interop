@@ -9,8 +9,8 @@
 CvMat* matlab_matrix_to_opencv_matrix(const mxArray *input) {
     ASSERT_2D_ARRAY(input);
     ASSERT_IS_DOUBLE(input);
-    int numSamples = mxGetM(input);
-    int numVariables = mxGetN(input);
+    size_t numSamples = mxGetM(input);
+    size_t numVariables = mxGetN(input);
     double* inputDataPtr = (double *)mxGetPr(input);
 
     CvMat* cvMat = cvCreateMat(numSamples, numVariables, DEFAULT_OPENCV_MTX_TYPE);
@@ -35,7 +35,7 @@ CvMat* matlab_array_to_opencv_array(const mxArray* input) {
     ASSERT_IS_VECTOR(input);
     ASSERT_IS_DOUBLE(input);
 
-    int numSamples = mxGetM(input);
+    size_t numSamples = mxGetM(input);
     double* inputDataPtr = (double *)mxGetPr(input);
 
     CvMat* cvMat = cvCreateMat(numSamples, 1, DEFAULT_OPENCV_MTX_TYPE);

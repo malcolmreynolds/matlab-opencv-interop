@@ -90,7 +90,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     clock_t start_time, end_time;
     mexPrintf("training now...");
     start_time = clock();
-    CvRTrees *forest = new CvRTrees();
+    CvRTrees *forest = new CvRTrees;
     forest->train(dataCvMtx, CV_ROW_SAMPLE, targetCvMtx, NULL, NULL, var_type, NULL, *rtParams);
     end_time = clock();
 	clock_t diff_time = end_time - start_time;
