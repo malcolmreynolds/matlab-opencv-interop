@@ -24,6 +24,20 @@ inline double max(double d1, double d2) {
 
 #define ERR_MSG_SIZE 2048
 
+// // Way to write into error buffer. Wish I knew about this before
+// #define MEX_ERR_PRINTF(fstring) \
+//     do {
+// 		char msgbuf[ERR_MSG_SIZE]; \
+// 		sprintf(msgbuf, "%s:%d " fstring, __FILE__, __LINE__)
+// }
+
+#define MEX_ERR_PRINTF(fstring, ...) \
+	do { \
+		char msgbuf[ERR_MSG_SIZE]; \
+		sprintf(msgbuf, "%s:%d " fstring, __FILE__, __LINE__, ##__VA_ARGS__); \
+		mexErrMsgTxt(msgbuf); \
+	} while(0)
+
 // the do { ... } while(0) means I can have a semi colon after the
 // macro invocations, which makes things look super sweet.
 
@@ -31,10 +45,7 @@ inline double max(double d1, double d2) {
 #define ASSERT_NUM_RHS_ARGS_EQUALS(num)					\
     do {                                                                \
         if (nrhs != (num)) {						\
-            char msgbuf[ERR_MSG_SIZE];					\
-            sprintf(msgbuf,"%s:%d expected %d rhs arguments, but got %d.", \
-                    __FILE__,__LINE__,(num),nrhs);                      \
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("expected %d rhs arguments, but got %d.", (num), nrhs); \
         } } while(0)
 
 
@@ -42,30 +53,21 @@ inline double max(double d1, double d2) {
 #define ASSERT_NUM_LHS_ARGS_EQUALS(num)					\
     do {                                                                \
         if (nlhs != (num)) {						\
-            char msgbuf[ERR_MSG_SIZE];					\
-            sprintf(msgbuf,"%s:%d expected %d lhs arguments, but got %d.", \
-                    __FILE__,__LINE__,(num),nlhs);                      \
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("expected %d lhs arguments, but got %d.", (num), nlhs); \
         } } while(0)
 
 //Assert that we have less than `num' left hand side arguments
 #define ASSERT_NUM_LHS_ARGS_LT(num)					\
     do {                                                                \
         if (nlhs >= (num)) {						\
-            char msgbuf[ERR_MSG_SIZE];					\
-            sprintf(msgbuf,"%s:%d expected less than %d lhs arguments, but got %d.", \
-                    __FILE__,__LINE__,(num),nlhs);                      \
-            mexErrMsgTxt(msgbuf);                                       \
+            MEX_ERR_PRINTF("expected less than %d lhs arguments, but got %d.",(num),nlhs);                      \
         } } while(0)
 
 //assert we have at least num rhs args
 #define ASSERT_NUM_RHS_ARGS_GTE(num)                                    \
     do {                                                                \
         if (nrhs < (num)) {                                             \
-            char msgbuf[ERR_MSG_SIZE];                                  \
-            sprintf(msgbuf, "%s:%d expected at least %d rhs args, but got %d.", \
-                    __FILE__,__LINE__,(num),nrhs);                      \
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("expected at least %d rhs args, but got %d.", (num), nrhs); \
         } } while(0)
 
 // Put ASSERT_NUM_RHS_ARGS_LT and others here, once needed.
@@ -74,98 +76,68 @@ inline double max(double d1, double d2) {
 //Macros to check type of args
 
 // Assert the third dimension of an array is of size 3 (as in, an RGB image)
-#define ASSERT_HAS_3_CHANNELS(array)					\
-    do {                                                                \
-        if (mxGetNumberOfDimensions(array) != 3 ||                      \
-            mxGetDimensions(array)[2] != 3) {				\
-            char msgbuf[ERR_MSG_SIZE];					\
-            sprintf(msgbuf,"%s:%d argument should have 3 channels.",    \
-                    __FILE__,__LINE__);					\
-            mexErrMsgTxt(msgbuf);                                       \
+#define ASSERT_HAS_3_CHANNELS(array)					            \
+    do {                                                            \
+        if (mxGetNumberOfDimensions(array) != 3 ||                  \
+            mxGetDimensions(array)[2] != 3) {				        \
+				MEX_ERR_PRINTF("argument should have 3 channels."); \
         } } while(0)
 
 
 #define ASSERT_2D_ARRAY(array)						\
     do {                                                                \
         if (mxGetNumberOfDimensions(array) != 2) {                      \
-            char msgbuf[ERR_MSG_SIZE];					\
-            sprintf(msgbuf,"%s:%d argument should be 2 dimensional.",   \
-                    __FILE__,__LINE__);					\
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("argument should be 2 dimensional.");        \
         } } while(0) 
 
 
 #define ASSERT_IS_VECTOR(array)                                 \
     do {                                                        \
         if (!is_vector(array)) {                                \
-            char msgbuf[ERR_MSG_SIZE];                          \
-            sprintf(msgbuf,"%s:%d argument must be a vector.",  \
-                    __FILE__, __LINE__);                        \
-            mexErrMsgTxt(msgbuf);                               \
+			MEX_ERR_PRINTF("argument must be a vector.");       \
         } } while(0)
 
 #define ASSERT_IS_UINT8(array)						\
     do {                                                                \
         if (!mxIsUint8(array)) {                                        \
-            char msgbuf[ERR_MSG_SIZE];                                  \
-            sprintf(msgbuf,"%s:%d argument must be of type Uint8.",     \
-                    __FILE__,__LINE__);                                 \
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("argument must be of type Uint8."); \
         } } while(0)
 
 #define ASSERT_IS_UINT32(array)                                         \
     do {                                                                \
         if (!mxIsUint32(array)) {                                       \
-            char msgbuf[ERR_MSG_SIZE];                                  \
-            sprintf(msgbuf,"%s:%d argument must be of type Uint32",     \
-                    __FILE__,__LINE__);                                 \
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("argument must be of type Uint32.");         \
         } } while(0)
 
 #define ASSERT_IS_SINT32(array)                                         \
     do {                                                                \
         if (!mxIsInt32(array)) {                                        \
-            char msgbuf[ERR_MSG_SIZE];                                  \
-            sprintf(msgbuf,"%s:%d argument must be of type Sint32",     \
-                    __FILE__,__LINE__);                                 \
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("argument must be of type Sint32.");         \
         } } while(0)
 
 #define ASSERT_IS_SINT64(array)                                         \
     do {                                                                \
         if (!mxIsInt64(array)) {                                        \
-            char msgbuf[ERR_MSG_SIZE];                                  \
-            sprintf(msgbuf,"%s:%d argument must be of type Sint64",     \
-                    __FILE__,__LINE__);                                 \
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("argument must be of type Sint64.");         \
         } } while(0)
 
 
 #define ASSERT_IS_DOUBLE(array)						\
     do {                                                                \
         if (!mxIsDouble(array)) {                                       \
-            char msgbuf[ERR_MSG_SIZE];                                  \
-            sprintf(msgbuf,"%s:%d argument must be of type Double.",    \
-                    __FILE__,__LINE__);                                 \
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("argument must be of type Double.");         \
         } } while(0)
 
 #define ASSERT_IS_SCALAR(array)                                         \
     do {                                                                \
         if (num_elements(array) != 1) {                                 \
-            char msgbuf[ERR_MSG_SIZE];                                  \
-            sprintf(msgbuf,"%s:%d argument must be a single number.",   \
-                    __FILE__,__LINE__);                                 \
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("argument must be a single number.");        \
         } } while(0)
 
 #define ASSERT_IS_STRUCT(array)                 \
     do {                                        \
         if (!mxIsStruct(array)) {               \
-            char msgbuf[ERR_MSG_SIZE];                 \
-            sprintf(msgbuf,"%s:%d argument must be a struct.",  \
-                    __FILE__, __LINE__);                        \
-            mexErrMsgTxt(msgbuf);                               \
+			MEX_ERR_PRINTF("argument must be a struct."); \
         } } while(0)
 
 #define ASSERT_IS_3_BY_3(array)                                         \
@@ -173,10 +145,7 @@ inline double max(double d1, double d2) {
         if ((mxGetNumberOfDimensions(array) != 2) ||                    \
             (mxGetM(array) != 3) ||                                     \
             (mxGetN(array) != 3)) {                                     \
-            char msgbuf[ERR_MSG_SIZE];                                  \
-            sprintf(msgbuf, "%s:%d argument should be a 3x3 matrix.",   \
-                    __FILE__, __LINE__);                                \
-            mexErrMsgTxt(msgbuf);                                       \
+				MEX_ERR_PRINTF("argument should be a 3x3 matrix."); \
         } } while(0)
 
 
@@ -187,20 +156,15 @@ inline double max(double d1, double d2) {
         const mwSize c1nd = mxGetNumberOfDimensions(array1);            \
         const mwSize c2nd = mxGetNumberOfDimensions(array2);            \
         if (c1nd != c2nd) {                                             \
-            char msgbuf[ERR_MSG_SIZE];                                  \
-            sprintf(msgbuf,"%s:%d arrays are not same size! %d dims vs %d dims!", \
-                    __FILE__,__LINE__,c1nd,c2nd);                       \
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("arrays are not same size! %d dims vs %d dims!", c1nd, c2nd); \
         }                                                               \
         const mwSize* dims1 = mxGetDimensions(array1);                  \
         const mwSize* dims2 = mxGetDimensions(array2);                  \
         unsigned int i;                                                 \
         for (i=0; i<c1nd; i++) {                                        \
             if (dims1[i] != dims2[i]) {                                 \
-                char msgbuf[ERR_MSG_SIZE];                              \
-                sprintf(msgbuf,"%s:%d array1 dim %d = %d, array2 dim %d = %d", \
-                        __FILE__,__LINE__,i,dims1[i],i,dims2[i]);       \
-                mexErrMsgTxt(msgbuf);                                   \
+				MEX_ERR_PRINTF("array1 dim %d = %d, array2 dim %d = %d", \
+                               i, dims1[i], i, dims2[i]);               \
             }                                                           \
         } } while(0)
 
@@ -211,30 +175,20 @@ inline double max(double d1, double d2) {
         const mwSize im_nd = mxGetNumberOfDimensions(image);            \
         const mwSize mask_nd = mxGetNumberOfDimensions(mask);           \
         if ((im_nd != 2) && (im_nd != 3)) {                             \
-            char msgbuf[ERR_MSG_SIZE];                                  \
-            sprintf(msgbuf,"%s:%d 'image' has %d dimensions",           \
-                    __FILE__,__LINE__,im_nd);                           \
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("'image' has %d dimensions", im_nd);  \
         }                                                               \
         else if (mask_nd != 2) {                                        \
-            char msgbuf[ERR_MSG_SIZE];                                  \
-            sprintf(msgbuf,"%s:%d mask doesn't have 2 dimensions",      \
-                    __FILE__,__LINE__);                                 \
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("mask doesn't have 2 dimensions"); \
         }                                                               \
         const mwSize* im_dims = mxGetDimensions(image);                 \
         const mwSize* mask_dims = mxGetDimensions(mask);                \
         if (im_dims[0] != mask_dims[0]) {                               \
-            char msgbuf[ERR_MSG_SIZE];                                  \
-            sprintf(msgbuf,"%s:%d image first dim=%d, mask first dim=%d", \
-                    __FILE__,__LINE__,im_dims[0],mask_dims[0]);         \
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("image first dim=%d, mask first dim = %d", \
+						   im_dims[0], mask_dims[0]); \
         }                                                               \
         else if (im_dims[1] != mask_dims[1]) {                          \
-            char msgbuf[ERR_MSG_SIZE];                                  \
-            sprintf(msgbuf,"%s:%d image second dim=%d, mask second dim=%d", \
-                    __FILE__,__LINE__,im_dims[1],mask_dims[1]);         \
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("image second dim=%d, mask second dim=%d", \
+                           im_dims[1], mask_dims[1]); \
         }                                                               \
     } while(0)
     
@@ -245,17 +199,11 @@ inline double max(double d1, double d2) {
     do {                                                                \
         const mwSize numd = mxGetNumberOfDimensions(image);             \
         if (numd != 3) {                                                \
-            char msgbuf[ERR_MSG_SIZE];                                  \
-            sprintf(msgbuf,"%s:%d image has dimensionality %d, != 3",   \
-                    __FILE__,__LINE__,numd);                            \
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("image has dimensionality %d, != 3", numd); \
         }                                                               \
         const mwSize* im_dims = mxGetDimensions(image);                 \
         if (im_dims[2] != 3) {                                          \
-            char msgbuf[ERR_MSG_SIZE];                                  \
-            sprintf(msgbuf,"%s:%d size of image's 3rd dimension is %d, expecting 3!", \
-                    __FILE__,__LINE__,im_dims[2]);                      \
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("size of image's 3rd dimension is %d, expecting 3!", im_dims[2]); \
         }                                                               \
     } while (0)
 
@@ -265,18 +213,14 @@ inline double max(double d1, double d2) {
 #define ASSERT_IS_POINTER(array)                                        \
     do {                                                                \
         if (!IS_POINTER(array)) {                                       \
-            char msgbuf[ERR_MSG_SIZE];                                  \
-            sprintf(msgbuf,"%s:%d expected a pointer!",__FILE__,__LINE__); \
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("expected a pointer!"); \
         }                                                               \
     } while(0)
 
 #define ASSERT_IS_STRING(array)                                         \
     do {                                                                \
         if (!mxIsChar(array)) {                                         \
-            char msgbuf[ERR_MSG_SIZE];                                  \
-            sprintf(msgbuf, "%s:%d expected a string!",__FILE__,__LINE__); \
-            mexErrMsgTxt(msgbuf);                                       \
+			MEX_ERR_PRINTF("expected a string!"); \
         }                                                               \
     } while(0)
 

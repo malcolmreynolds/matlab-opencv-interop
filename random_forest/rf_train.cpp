@@ -72,10 +72,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
     CvMat* targetCvMtx = matlab_array_to_opencv_array(targetValueVec);
     if (targetCvMtx->rows != numSamples) {
-        char msgbuf[ERR_MSG_SIZE];
-        sprintf(msgbuf,"%s:%d training data had %d samples, labels contains %d values\n",
-                __FILE__,__LINE__,numSamples, targetCvMtx->rows);
-        mexErrMsgTxt(msgbuf);
+		MEX_ERR_PRINTF("training data had %d samples, labels contain %d values.", 
+		               numSamples, targetCvMtx->rows);
     }
     mexPrintf("training labels converted to opencv format.\n");
 #ifdef PRINT_INPUTS
