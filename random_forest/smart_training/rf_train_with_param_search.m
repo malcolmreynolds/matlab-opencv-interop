@@ -46,7 +46,7 @@ function [best_params stats] = rf_train_with_param_search(training_x, training_y
 	min_oob_error = Inf;
 	best_params = -1;
 	
-	opts = rf_good_params()
+	opts = rf_good_params();
 	for w=1:length(search_ranges.max_trees_rng),
 		opts.max_tree_count = int32(search_ranges.max_trees_rng(w));
 		for x=1:length(search_ranges.max_depth_rng), 
@@ -71,9 +71,8 @@ function [best_params stats] = rf_train_with_param_search(training_x, training_y
 					end	
 				end
 			end
-			fprintf('dont max depth = %d\n', opts.max_depth);
+			fprintf('done max depth = %d max trees = %d\n', opts.max_depth, opts.max_tree_count);
 		end
-		fprintf('done max trees = %d\n', opts.max_tree_count);
 	end
 	
 end
