@@ -89,8 +89,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		// Depth first search happens in this node
 		while( sp != 0 ) { // when sp is zero we are done
 			// get a node off the stack
-			const CvDTreeNode* current_node = next_nodes_to_visit[sp];
 			sp--;
+			const CvDTreeNode* current_node = next_nodes_to_visit[sp];
 			
 			if (current_node == NULL) {
 				MEX_ERR_PRINTF("error: current_node is NULL");
