@@ -1,10 +1,22 @@
 #include "../opencv_matlab_interop.h"
 
 // Structure fields to include for each tree
-const int num_fields = 1;
-const char *field_names[num_fields] = {
-	"leaves"
+const int tree_num_fields = 1;
+const char *tree_field_names[tree_num_fields] = {
+	"nodes"
 };
+
+const char *internal_node_field_names[] = {
+	"left",
+	"right",
+	"value"
+};
+const int internal_node_ndims = sizeof(internal_node_field_names) / sizeof(const char *);
+
+const char *leaf_node_field_names[] = {
+	"value"
+};
+const int leaf_node_ndims = sizeof(leaf_node_field_names) / sizeof(const char *);
 
 const int num_dims = 1;
 const mwSize dims[num_dims] = {
@@ -25,6 +37,40 @@ unsigned int num_leaves_in_subtree(const CvDTreeNode* n) {
 		return num_leaves_in_subtree(n->left) + num_leaves_in_subtree(n->right);
 	}
 }
+
+mxArray* make_matlab_nodes_struct(const CvDTreeNode *node) {
+	if (node == NULL) {
+		MEX_ERR_PRINTF("make_matlab_nodes_struct called on null node, error!");
+	}
+	if (node->left == NULL && node->right == NULL) {
+		//leaf node
+		mxArray* leaf_struct = mxCreateStructArray(num_dims, dims, 
+		                                           leaf_node_ndims, leaf_node_field_names);
+		mxArray* double_val = mxCreateDoubleScalar(node->value);
+		if (double_val == NULL) {
+			MEX_ERR_PRINTF("double_val == null");
+		}
+		mxSetField(leaf_struct, 0, "value", double_val);
+		return leaf_struct;
+	}
+	else {
+		mxArray* node_struct = mxCreateStructArray(num_dims, dims,
+			internal_node_ndims, internal_node_field_names);
+		mxSetField(node_struct, 0, "left", make_matlab_nodes_struct(node->left));
+		mxSetField(node_struct, 0, "right", make_matlab_nodes_struct(node->right));
+		return node_struct;
+	}
+}
+
+// This can potentially hold other bits of metadata but for now just has the nodes recursive
+// structure.
+mxArray* make_matlab_tree_struct(CvForestTree *tree) {
+	mxArray* tree_struct = mxCreateStructArray(num_dims, dims, tree_num_fields, tree_field_names);
+	mxSetField(tree_struct, 0, "nodes", make_matlab_nodes_struct(tree->get_root()));
+	return tree_struct;
+}
+
+
 
 
 /* Examines the values at each leaf node in order to see what the distribution of data
@@ -47,77 +93,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	
 	
 	for (unsigned int t = 0; t < num_trees; t++) {
-		mxArray* tree_struct = mxCreateStructArray(num_dims, dims, num_fields, field_names);
+		mxArray* tree_struct = mxCreateStructArray(num_dims, dims, tree_num_fields, tree_field_names);
 		if (tree_struct == NULL) {
 			MEX_ERR_PRINTF("couldn't allocate structure for tree %d", t);
 		}
-		mxSetCell(output_cell_array, t, tree_struct);
+		mxSetCell(output_cell_array, t, make_matlab_tree_struct(forest->get_tree(t)));
 	}
-#ifdef DEBUG
-	mexPrintf("allocated a struct for each tree\n");
-#endif
-
-	// Now we need to do a depth first search down the tree, first to find the number of nodes
-	// then to store the regression value at each of them
-	for (unsigned int t = 0; t < num_trees; t++) {
-		const CvDTreeNode* root = forest->get_tree(t)->get_root();
-		
-		unsigned int num_leaf_nodes = num_leaves_in_subtree(root);
-#ifdef DEBUG
-		mexPrintf("tree %d has %d leaves\n", t, num_leaf_nodes);
-#endif
-		// Fill this array with the 'value' field of each leaf node
-		mxArray* leaf_node_values_mx = mxCreateDoubleMatrix(1, num_leaf_nodes, mxREAL);
-		if (leaf_node_values_mx == NULL) {
-			MEX_ERR_PRINTF("couldn't allocate leav_nodes_values_mx");
-		}
-		double* leaf_node_values = (double *)mxGetPr(leaf_node_values_mx);
-		
-		// Create a stack for nodes to do DFS - needs to be num_leaf_nodes at most although
-		// this is a massive overestimate in 99% of cases. Whatever.
-		const CvDTreeNode **next_nodes_to_visit = (const CvDTreeNode **)malloc(num_leaf_nodes * sizeof(CvDTreeNode *));
-		if (next_nodes_to_visit == NULL) {
-			MEX_ERR_PRINTF("couldn't allocate stack for DFS of tree %d", t);
-		}
-		unsigned int sp = 0; //points to next free_slot in array
-		unsigned int leaf_idx = 0; //used to index into leaf_node_values
-		
-		//put the first node into the stack
-		next_nodes_to_visit[sp] = root;
-		sp++;
-		
-		// Depth first search happens in this node
-		while( sp != 0 ) { // when sp is zero we are done
-			// get a node off the stack
-			sp--;
-			const CvDTreeNode* current_node = next_nodes_to_visit[sp];
-			
-			if (current_node == NULL) {
-				MEX_ERR_PRINTF("error: current_node is NULL");
-			}
-			
-			if (current_node->left == NULL && current_node->right == NULL) {
-				// if it's a leaf node then add the value to the output array
-				leaf_node_values[leaf_idx] = current_node->value;
-				mexPrintf("found value %f for tree %d leaf id %d\n", 
-						  current_node->value, t, leaf_idx);
-				leaf_idx++;
-			}
-			else {
-				// if an internal node, push both children onto stack
-				next_nodes_to_visit[sp] = current_node->left;
-				next_nodes_to_visit[sp+1] = current_node->right;
-				sp += 2;
-			}
-		}
-		
-		mxArray *tree_struct = mxGetCell(output_cell_array, t);
-		mxSetField(tree_struct, 0, field_names[0], leaf_node_values_mx);
-		
-		// Could do better by not allocating this for each tree, but meh
-		free(next_nodes_to_visit);
-	}
-	
 	plhs[0] = output_cell_array;
 }
 
