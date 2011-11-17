@@ -2,7 +2,7 @@
 #change this for your platform - this is for 64 bit os x
 MEX = mex
 MEX_SUFFIX = mexmaci64
-MEX_FLAGS = -g #-Wall
+MEX_FLAGS = -g -DDEBUG #-Wall
 OBJ_SUFFIX = o
 DELETE_CMD = rm
 
@@ -15,7 +15,7 @@ OCV_DIRS = `opencv-comp`
 
 UTILS = mex_utils.$(OBJ_SUFFIX) opencv_matlab_interop.$(OBJ_SUFFIX) 
 
-RANDOM_FOREST_FUNCS = $(addprefix random_forest/, rf_delete rf_info rf_load rf_oob rf_predict rf_save rf_train)
+RANDOM_FOREST_FUNCS = $(addprefix random_forest/, rf_examine_leaves rf_delete rf_info rf_load rf_oob rf_predict rf_save rf_train mex_test)
 
 GEOM_FUNCS = $(addprefix geometric-image-transformations/,cvFindExtrinsics)
 CALIB_FUNCS = $(addprefix calibration/,posit)
