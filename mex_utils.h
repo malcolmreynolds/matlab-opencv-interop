@@ -226,8 +226,8 @@ inline double max(double d1, double d2) {
 
 #define ASSERT_NON_NULL(ptr) \
     do {  \
-		if (ptr == null) { \
-			MEX_ERR_PTRINT("ptr %s is null", #ptr);\
+		if (ptr == NULL) { \
+			MEX_ERR_PRINTF("ptr %s is null", #ptr);\
 		} \
 	} while(0)
 

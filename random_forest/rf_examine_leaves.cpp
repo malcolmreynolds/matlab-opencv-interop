@@ -1,10 +1,11 @@
 #include "../opencv_matlab_interop.h"
 
 // Structure fields to include for each tree
-const int tree_num_fields = 1;
-const char *tree_field_names[tree_num_fields] = {
-	"nodes"
+const char *tree_field_names[] = {
+	"nodes",
+	"num_leaves"
 };
+const int tree_num_fields = sizeof(tree_field_names) / sizeof(const char *);
 
 const char *internal_node_field_names[] = {
 	"l",
@@ -40,13 +41,16 @@ unsigned int num_leaves_in_subtree(const CvDTreeNode* n) {
 mxArray* make_matlab_nodes_struct(const CvDTreeNode *node) {
 	ASSERT_NON_NULL(node);
 
+	// Whether the node is internal or external, we definitely want to store
+	// the value (this is the average label values of all points at that node)
+	mxArray* double_val = mxCreateDoubleScalar(node->value);
+	ASSERT_NON_NULL(double_val);
+
 	if (node->left == NULL && node->right == NULL) {
 		//leaf node
 		mxArray* leaf_struct = mxCreateStructArray(num_dims, dims, 
 		                                           leaf_node_ndims, leaf_node_field_names);
-		mxArray* double_val = mxCreateDoubleScalar(node->value);
 		ASSERT_NON_NULL(leaf_struct);
-		ASSERT_NON_NULL(double_val);
 
 		mxSetField(leaf_struct, 0, "value", double_val);
 		return leaf_struct;
@@ -58,6 +62,7 @@ mxArray* make_matlab_nodes_struct(const CvDTreeNode *node) {
 		ASSERT_NON_NULL(node_struct);
 		mxSetField(node_struct, 0, "l", make_matlab_nodes_struct(node->left));
 		mxSetField(node_struct, 0, "r", make_matlab_nodes_struct(node->right));
+		mxSetField(node_struct, 0, "value", double_val); 
 		return node_struct;
 	}
 }
@@ -68,7 +73,10 @@ mxArray* make_matlab_tree_struct(CvForestTree *tree) {
 	ASSERT_NON_NULL(tree);
 	
 	mxArray* tree_struct = mxCreateStructArray(num_dims, dims, tree_num_fields, tree_field_names);
-	ASSERT_NON_NULL(node_struct);
+	ASSERT_NON_NULL(tree_struct);
+	mxArray* num_leaves_mx = mxCreateDoubleScalar(num_leaves_in_subtree(tree->get_root()));
+	ASSERT_NON_NULL(num_leaves_mx);
+	mxSetField(tree_struct, 0, "num_leaves", num_leaves_mx);
 	mxSetField(tree_struct, 0, "nodes", make_matlab_nodes_struct(tree->get_root()));
 	return tree_struct;
 }
