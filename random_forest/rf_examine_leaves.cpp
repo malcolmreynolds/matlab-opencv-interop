@@ -10,19 +10,21 @@ const int tree_num_fields = sizeof(tree_field_names) / sizeof(const char *);
 const char *internal_node_field_names[] = {
 	"l",
 	"r",
-	"value"
+	"value",
+	"samples"
 };
 const int internal_node_ndims = sizeof(internal_node_field_names) / sizeof(const char *);
 
 const char *leaf_node_field_names[] = {
-	"value"
+	"value",
+	"samples"
 };
 const int leaf_node_ndims = sizeof(leaf_node_field_names) / sizeof(const char *);
 
-const int num_dims = 1;
-const mwSize dims[num_dims] = {
+const mwSize dims[] = {
 	1
 };
+const int num_dims = sizeof(dims) / sizeof(mwSize);
 
 // Recursively counts the number of leaf nodes in a subtree (to count the number
 // of leaves in the whole thing, call on the root). When called on a leaf, returns 1.
@@ -41,10 +43,15 @@ unsigned int num_leaves_in_subtree(const CvDTreeNode* n) {
 mxArray* make_matlab_nodes_struct(const CvDTreeNode *node) {
 	ASSERT_NON_NULL(node);
 
-	// Whether the node is internal or external, we definitely want to store
-	// the value (this is the average label values of all points at that node)
-	mxArray* double_val = mxCreateDoubleScalar(node->value);
-	ASSERT_NON_NULL(double_val);
+	// Some values are stored regardless of whether the node is internal or external
+	
+	// regression value
+	mxArray* double_val_mx = mxCreateDoubleScalar(node->value);
+	ASSERT_NON_NULL(double_val_mx);
+	
+	// number of samples that reached this node
+	mxArray* sample_count_mx = mxCreateDoubleScalar(node->sample_count);
+	ASSERT_NON_NULL(sample_count_mx);
 
 	if (node->left == NULL && node->right == NULL) {
 		//leaf node
@@ -52,7 +59,8 @@ mxArray* make_matlab_nodes_struct(const CvDTreeNode *node) {
 		                                           leaf_node_ndims, leaf_node_field_names);
 		ASSERT_NON_NULL(leaf_struct);
 
-		mxSetField(leaf_struct, 0, "value", double_val);
+		mxSetField(leaf_struct, 0, "value", double_val_mx);
+		mxSetField(leaf_struct, 0, "samples", sample_count_mx);
 		return leaf_struct;
 	}
 	else {
@@ -62,7 +70,8 @@ mxArray* make_matlab_nodes_struct(const CvDTreeNode *node) {
 		ASSERT_NON_NULL(node_struct);
 		mxSetField(node_struct, 0, "l", make_matlab_nodes_struct(node->left));
 		mxSetField(node_struct, 0, "r", make_matlab_nodes_struct(node->right));
-		mxSetField(node_struct, 0, "value", double_val); 
+		mxSetField(node_struct, 0, "value", double_val_mx); 
+		mxSetField(node_struct, 0, "samples", sample_count_mx);
 		return node_struct;
 	}
 }
