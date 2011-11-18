@@ -2,7 +2,7 @@
 
 #include "calib3d/calib3d.hpp"
 
-#define DEBUG
+//#define DEBUG
 
 /* RHS arguments
   prhs[0]: object points in object coordinate space - 3xN
