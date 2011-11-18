@@ -224,6 +224,13 @@ inline double max(double d1, double d2) {
         }                                                               \
     } while(0)
 
+#define ASSERT_NON_NULL(ptr) \
+    do {  \
+		if (ptr == null) { \
+			MEX_ERR_PTRINT("ptr %s is null", #ptr);\
+		} \
+	} while(0)
+
 
 //Get an unsigned int from an mxArray. Most useful when the mxArray represents a scalar.
 #define SCALAR_GET_SINGLE(array) *((float *)mxGetPr(array))

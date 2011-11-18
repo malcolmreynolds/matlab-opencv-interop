@@ -7,8 +7,8 @@ const char *tree_field_names[tree_num_fields] = {
 };
 
 const char *internal_node_field_names[] = {
-	"left",
-	"right",
+	"l",
+	"r",
 	"value"
 };
 const int internal_node_ndims = sizeof(internal_node_field_names) / sizeof(const char *);
@@ -26,9 +26,8 @@ const mwSize dims[num_dims] = {
 // Recursively counts the number of leaf nodes in a subtree (to count the number
 // of leaves in the whole thing, call on the root). When called on a leaf, returns 1.
 unsigned int num_leaves_in_subtree(const CvDTreeNode* n) {
-	if (n == NULL) {
-		MEX_ERR_PRINTF("num_leaves_in_subtree called on NULL pointer");
-	}
+	ASSERT_NON_NULL(n);
+
 	if (n->left == NULL && n->right == NULL) {
 		// We are at a leaf
 		return 1;
@@ -39,25 +38,26 @@ unsigned int num_leaves_in_subtree(const CvDTreeNode* n) {
 }
 
 mxArray* make_matlab_nodes_struct(const CvDTreeNode *node) {
-	if (node == NULL) {
-		MEX_ERR_PRINTF("make_matlab_nodes_struct called on null node, error!");
-	}
+	ASSERT_NON_NULL(node);
+
 	if (node->left == NULL && node->right == NULL) {
 		//leaf node
 		mxArray* leaf_struct = mxCreateStructArray(num_dims, dims, 
 		                                           leaf_node_ndims, leaf_node_field_names);
 		mxArray* double_val = mxCreateDoubleScalar(node->value);
-		if (double_val == NULL) {
-			MEX_ERR_PRINTF("double_val == null");
-		}
+		ASSERT_NON_NULL(leaf_struct);
+		ASSERT_NON_NULL(double_val);
+
 		mxSetField(leaf_struct, 0, "value", double_val);
 		return leaf_struct;
 	}
 	else {
+		// internal node, so need to recurse
 		mxArray* node_struct = mxCreateStructArray(num_dims, dims,
 			internal_node_ndims, internal_node_field_names);
-		mxSetField(node_struct, 0, "left", make_matlab_nodes_struct(node->left));
-		mxSetField(node_struct, 0, "right", make_matlab_nodes_struct(node->right));
+		ASSERT_NON_NULL(node_struct);
+		mxSetField(node_struct, 0, "l", make_matlab_nodes_struct(node->left));
+		mxSetField(node_struct, 0, "r", make_matlab_nodes_struct(node->right));
 		return node_struct;
 	}
 }
@@ -65,7 +65,10 @@ mxArray* make_matlab_nodes_struct(const CvDTreeNode *node) {
 // This can potentially hold other bits of metadata but for now just has the nodes recursive
 // structure.
 mxArray* make_matlab_tree_struct(CvForestTree *tree) {
+	ASSERT_NON_NULL(tree);
+	
 	mxArray* tree_struct = mxCreateStructArray(num_dims, dims, tree_num_fields, tree_field_names);
+	ASSERT_NON_NULL(node_struct);
 	mxSetField(tree_struct, 0, "nodes", make_matlab_nodes_struct(tree->get_root()));
 	return tree_struct;
 }
@@ -87,16 +90,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	mexPrintf("Loaded forest of %d trees, retrieving leave node values.\n", num_trees);
 
 	mxArray *output_cell_array = mxCreateCellMatrix(1, num_trees);
-	if (output_cell_array == NULL) {
-		MEX_ERR_PRINTF("Could not allocate memory for output cell array");
-	}
-	
+	ASSERT_NON_NULL(output_cell_array);
 	
 	for (unsigned int t = 0; t < num_trees; t++) {
 		mxArray* tree_struct = mxCreateStructArray(num_dims, dims, tree_num_fields, tree_field_names);
-		if (tree_struct == NULL) {
-			MEX_ERR_PRINTF("couldn't allocate structure for tree %d", t);
-		}
+		ASSERT_NON_NULL(tree_struct);
 		mxSetCell(output_cell_array, t, make_matlab_tree_struct(forest->get_tree(t)));
 	}
 	plhs[0] = output_cell_array;
